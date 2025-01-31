@@ -10,12 +10,12 @@ public:
     Converter();
     explicit Converter(const std::string &originStr, int base = 10);
 
-    bool isValid();
+    bool isValid() const;
     bool validateString(const std::string &str);
     int toInt();
-    int getBase();
-    std::string convertToBase(int base);
-    void printAllBases();
+    int getBase() const;
+    std::string convertToBase(int base) const;
+    void printAllBases() const;
 private:
     int base {0};
     int number;

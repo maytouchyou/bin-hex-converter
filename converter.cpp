@@ -19,12 +19,18 @@ Converter::Converter(const std::string &originStr, int base) :
     valid = validateString(numstr);
 }
 
-bool Converter::isValid()
+/**
+ * Validness of passed numerical value in class
+*/
+bool Converter::isValid() const
 {
     return valid;
 }
 
-int Converter::getBase()
+/**
+ * Base of passed numerical value in class
+*/
+int Converter::getBase() const
 {
     return base;
 }
@@ -85,10 +91,10 @@ int Converter::toInt()
 /**
  * Numerical representation of number in fixed base
 */
-std::string Converter::convertToBase(int base)
+std::string Converter::convertToBase(int base) const
 {
     int num = number;
-    const auto &prefix = prefixes[base];
+    const auto &prefix = prefixes.at(base);
     std::string res;
 
     while (num > 0)
@@ -104,7 +110,7 @@ std::string Converter::convertToBase(int base)
 /**
  * Print number in all registered numerical systems
 */
-void Converter::printAllBases()
+void Converter::printAllBases() const
 {
     if (valid)
     {
