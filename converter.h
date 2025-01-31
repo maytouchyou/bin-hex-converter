@@ -3,29 +3,28 @@
 
 #include <map>
 
-using namespace std;
 
 class Converter
 {
 public:
     Converter();
-    Converter(const char *originStr, int defaultBase = 10);
-    ~Converter();
+    explicit Converter(const std::string &originStr, int base = 10);
 
     bool isValid();
-    bool validateString(const char *str);
+    bool validateString(const std::string &str);
     int toInt();
     int getBase();
-    char* convertToBaseString(int tobase);
+    std::string convertToBase(int base);
     void printAllBases();
 private:
-    const char * const alphabet;
-    map<char, int> orders;
-    map<int, const char*> prefixes;
-    int base;
+    int base {0};
     int number;
-    char *numstr;
-    bool valid;
+    bool valid {false};
+    std::string numstr;
+    const std::string alphabet {"0123456789abcdef"};
+    std::map<char, int> orders;
+    std::map<int, std::string> prefixes;
+
 };
 
 #endif // CONVERTER_H

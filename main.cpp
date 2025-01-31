@@ -1,27 +1,28 @@
 #include <iostream>
 #include "converter.h"
-using namespace std;
 
 int main(int argc, char *argv[])
 {
     if (argc != 2)
     {
-        cout << "Please run as: " << argv[0] << " <number_to_convert>" << endl;
-        cout << "Example: " << argv[0] << " 254" << endl;
+        std::cout << "Please run as: " << argv[0]
+                  << " <number_to_convert>" << std::endl;
+        std::cout << "Example: " << argv[0] <<
+                     " 254" << std::endl;
         return 0;
     }
 
-    Converter conv;
-    cout << "Original value: " << argv[1] << endl;
-
-    if (!conv.validateString(argv[1]))
+    Converter cc{};
+    if (!cc.validateString(argv[1]))
     {
-        cout << "Input correct number " << endl;
+        std::cout << "Input correct number " << std::endl;
         return 0;
     }
+    std::cout << "Original base is: " << cc.getBase() << std::endl;
+    std::cout << "Original value: " << argv[1] << std::endl;
 
-    conv.toInt();
-    conv.printAllBases();
+    cc.toInt();
+    cc.printAllBases();
 
     return 0;
 }

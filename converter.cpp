@@ -1,31 +1,22 @@
 #include "converter.h"
-#include "string.h"
 #include <iostream>
 
-Converter::Converter() : Converter(nullptr) {}
 
-Converter::Converter(const char *originStr, int defaultBase) :
-    alphabet("0123456789abcdef"),
-    base(defaultBase),
-    number(-1),
-    valid(false)
+Converter::Converter() : Converter(std::string{})
+{}
+
+Converter::Converter(const std::string &originStr, int base) :
+    base{base},
+    numstr{originStr},
+    prefixes{{2, "b"}, {8, "0o"}, {5, "5x"},
+             {10, ""}, {16, "0x"}}
 {
-    prefixes[2] = "b";
-    prefixes[10] = "";
-    prefixes[16] = "0x";
-
-    if (originStr)
-        numstr = strdup(originStr);
-
-    for (size_t i = 0; i < strlen(alphabet); i++)
+    for (size_t i = 0; i < alphabet.length(); i++)
     {
-        orders.insert(pair<char,int>(alphabet[i], i));
+        orders.insert(std::pair<char,int>(alphabet[i], i));
     }
-}
 
-Converter::~Converter()
-{
-    delete [] numstr;
+    valid = validateString(numstr);
 }
 
 bool Converter::isValid()
@@ -38,85 +29,81 @@ int Converter::getBase()
     return base;
 }
 
-// Check of alphabet consistency & number's base
-bool Converter::validateString(const char *str)
+/**
+ * Check of alphabet consistency & number's base
+*/
+bool Converter::validateString(const std::string &origNum)
 {
-    if (!numstr) delete [] numstr;
-    numstr = strdup(str);
+    auto setValid(
+                [this](auto n, auto v){ numstr = n, valid = v; }
+    );
+    setValid("", false);
 
-    size_t prefixlen = 0;
     for (auto it = prefixes.begin(); it != prefixes.end(); ++it)
     {
-        prefixlen = strlen((*it).second);
-
         if ((*it).first == 10)
             continue;
 
-        if (!strncmp(str, (*it).second, prefixlen))
+        if (origNum.find((*it).second) != origNum.npos)
+        {
             base = (*it).first;
+            break;
+        }
     }
 
-    prefixlen = strlen(prefixes[base]);
-
-    if (prefixlen == strlen(str)) // empty string
-        return false;
-
-    for (size_t i = prefixlen; i < strlen(str); i++)
+    for (auto i = prefixes[base].length(); i < origNum.length(); i++)
     {
-        if ((str[i] < alphabet[0]) || (str[i] > alphabet[base-1]))
+        if ((origNum[i] < alphabet[0]) || (origNum[i] > alphabet[base-1]))
         {
             return false;
         }
     }
-
-    return (valid = true);
+    setValid(origNum, true);
+    return true;
 }
 
-// Decimal numeration of number
+/**
+ * Decimal storage value of number as INT
+*/
 int Converter::toInt()
 {
     if (valid)
     {
         int sum = 0, basepow = 1;
-        int prefixlen = strlen(prefixes[base]);
+        int prefixlen = prefixes[base].length();
 
-        for (int i = strlen(numstr) - 1; i >= prefixlen; i--)
+        for (int i = numstr.length() - 1; i >= prefixlen; i--)
         {
             sum += basepow * orders[numstr[i]];
             basepow *= base;
         }
-
         number = sum;
     }
     return number;
 }
 
-// Numerical representation of number in fixed base
-char* Converter::convertToBaseString(int tobase)
+/**
+ * Numerical representation of number in fixed base
+*/
+std::string Converter::convertToBase(int base)
 {
-    int bodylen = 1, num = number;
+    int num = number;
+    const auto &prefix = prefixes[base];
+    std::string res;
 
-    do { bodylen++; } while ((num /= tobase) > 0);
-
-    int prefixlen = strlen(prefixes[tobase]);
-    int len = prefixlen + bodylen;
-
-    char *strconv = new char[len];
-    strcpy(strconv, prefixes[tobase]);
-
-    int i;
-    for (num = number, i = len - 2; i >= prefixlen; i--)
+    while (num > 0)
     {
-        int div = num % tobase;
-        strconv[i] = alphabet[div];
-        num = num / tobase;
+        int div = num % base;
+        res.insert(begin(res), alphabet[div]);
+        num = num / base;
     }
-
-    strconv[len-1] = '\0';
-    return strconv;
+    res.insert(begin(res), begin(prefix), end(prefix));
+    return res;
 }
 
-// Print number in all registered numerical systems
+/**
+ * Print number in all registered numerical systems
+*/
 void Converter::printAllBases()
 {
     if (valid)
@@ -126,10 +113,12 @@ void Converter::printAllBases()
             if ((*it).first == base)
                 continue;
 
-            char *res = convertToBaseString((*it).first);
-            std::cout << "Number in " << (*it).first << " base: " << res << std::endl;
-
-            delete [] res;
+            std::string res = convertToBase((*it).first);
+            std::cout << "Number in " << (*it).first
+                      << " base: " << res << std::endl;
         }
+    }
+    else {
+        std::cout << "Incorrect passed value: " << numstr << std::endl;
     }
 }
