@@ -10,12 +10,13 @@ class Converter
 public:
     Converter();
     Converter(const char *originStr, int defaultBase = 10);
+    ~Converter();
 
     bool isValid();
     bool validateString(const char *str);
     int toInt();
     int getBase();
-    char* converToBaseString(int tobase);
+    char* convertToBaseString(int tobase);
     void printAllBases();
 private:
     const char * const alphabet;

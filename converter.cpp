@@ -2,6 +2,7 @@
 #include "string.h"
 #include <iostream>
 
+Converter::Converter() : Converter(nullptr) {}
 
 Converter::Converter(const char *originStr, int defaultBase) :
     alphabet("0123456789abcdef"),
@@ -22,8 +23,10 @@ Converter::Converter(const char *originStr, int defaultBase) :
     }
 }
 
-Converter::Converter() : Converter(nullptr)
-{}
+Converter::~Converter()
+{
+    delete [] numstr;
+}
 
 bool Converter::isValid()
 {
@@ -35,14 +38,13 @@ int Converter::getBase()
     return base;
 }
 
+// Check of alphabet consistency & number's base
 bool Converter::validateString(const char *str)
 {
-    if (!numstr)
-        delete [] numstr;
-
+    if (!numstr) delete [] numstr;
     numstr = strdup(str);
-    size_t prefixlen = 0;
 
+    size_t prefixlen = 0;
     for (auto it = prefixes.begin(); it != prefixes.end(); ++it)
     {
         prefixlen = strlen((*it).second);
@@ -70,6 +72,7 @@ bool Converter::validateString(const char *str)
     return (valid = true);
 }
 
+// Decimal numeration of number
 int Converter::toInt()
 {
     if (valid)
@@ -88,7 +91,8 @@ int Converter::toInt()
     return number;
 }
 
-char* Converter::converToBaseString(int tobase)
+// Numerical representation of number in fixed base
+char* Converter::convertToBaseString(int tobase)
 {
     int bodylen = 1, num = number;
 
@@ -112,6 +116,7 @@ char* Converter::converToBaseString(int tobase)
     return strconv;
 }
 
+// Print number in all registered numerical systems
 void Converter::printAllBases()
 {
     if (valid)
@@ -121,7 +126,7 @@ void Converter::printAllBases()
             if ((*it).first == base)
                 continue;
 
-            char *res = converToBaseString((*it).first);
+            char *res = convertToBaseString((*it).first);
             std::cout << "Number in " << (*it).first << " base: " << res << std::endl;
 
             delete [] res;
